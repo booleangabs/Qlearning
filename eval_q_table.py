@@ -16,26 +16,22 @@ def get_action_index(action):
     return ACTIONS.index(action)
 
 def to_int(state):
-    s = str(state)
-    platform = s[2:7]
-    orientation = s[7:]
-    return int(f"0b{platform}", 2), int(f"0b{orientation}", 2)
+    return int(str(state), 2)
 
 socket = connect(PORT)
 
 _ = get_state_reward(socket, "left") 
 state, _ = get_state_reward(socket, "right") 
-p, d = to_int(state)
-s = p * 4 + d
+s = to_int(state)
 
 while True:
     action = ACTIONS[argmax(Q[s])]
     
     state, r = get_state_reward(socket, action) 
-    p, d = to_int(state)
-    print(f"{action} - New State: (Plat. {p} {DIR[d]}) - Reward: {r}")
+    s_new = to_int(state)
+    print(f"{action} - New State: (Plat. {s_new // 4} {DIR[s_new % 4]}) - Reward: {r}")
 
-    s = p * 4 + d
+    s = s_new
 
     if r in [-100, 300]:
         # Dead or won
